@@ -56,3 +56,10 @@ This project is released under the MIT License. See [LICENSE](LICENSE).
 ## Disclaimer
 
 This software is intended for flight-simulation and virtual-airline use. It is not an approved real-world aviation safety or flight-data analysis system.
+
+
+## Reference implementation
+
+The repository includes a clean-room PHP 8.2+ compatibility layer under `src/`. It normalizes and validates the observable Stratos landing-report schema for downstream applications without redistributing Stratos application source code or claiming to reproduce Stratos's proprietary scoring algorithm.
+
+See `docs/CLEAN_ROOM_IMPLEMENTATION.md`.
