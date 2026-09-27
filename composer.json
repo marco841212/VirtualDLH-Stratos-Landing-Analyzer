@@ -1,14 +1,25 @@
 {
   "name": "virtualdlh/stratos-landing-analyzer",
-  "description": "Clean-room Stratos landing report compatibility layer for VirtualDLH.",
+  "description": "Clean-room Stratos landing report compatibility layer and independent landing scoring engine for VirtualDLH.",
   "type": "library",
   "license": "MIT",
   "require": {
     "php": ">=8.2"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
   "autoload": {
     "psr-4": {
       "VirtualDLH\\StratosLanding\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "VirtualDLH\\StratosLanding\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
   }
 }
