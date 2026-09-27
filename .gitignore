@@ -1,0 +1,51 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+auth.json
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Runtime and production data
+/logs/
+/runtime/
+/screenshots/
+/data/private/
+*.log
+stratos-*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# Local configuration
+config/*.local.php
+config/secrets.php
+config/production.php
+
+# Cache / generated output
+/cache/
+/tmp/
+/coverage/
+/build/
+/dist/
+
+# Backups
+*.bak
+*.backup
+*~
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
