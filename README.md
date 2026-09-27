@@ -1,5 +1,7 @@
 # VirtualDLH Stratos Landing Analyzer
 
+Automated tests run on GitHub Actions for PHP 8.2 and 8.3.
+
 Advanced flight landing analysis and pilot performance reporting for Stratos and VirtualDLH.
 
 > **Repository status:** Initial public-release preparation. The production VirtualDLH/Stratos integration has **not** been copied into this repository yet. Production code will be reviewed and sanitized before it is added.
