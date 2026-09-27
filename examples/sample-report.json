@@ -1,0 +1,59 @@
+{
+  "id": "demo-landing-001",
+  "created_at": "2026-09-27T18:00:00Z",
+  "callsign": "DLH453",
+  "departure_icao": "KJFK",
+  "arrival_icao": "EDDF",
+  "aircraft_type": "Airbus A350-900",
+  "aircraft_icao": "A359",
+  "aircraft_registration": "D-DEMO",
+  "simulator": "Demo Simulator",
+  "compositeScore": 81.67,
+  "grade": "B+",
+  "landingVerdict": "Good",
+  "analysis_available": true,
+  "analysis_status": "available",
+  "approach": {
+    "heightAglFt": 50,
+    "iasKts": 140,
+    "verticalSpeedFpm": -685
+  },
+  "touchdown": {
+    "landingRateFpm": -285,
+    "iasKts": 117,
+    "groundSpeedKts": 119,
+    "pitchDeg": 7.7,
+    "bankDeg": 0.4,
+    "gForce": 1.12
+  },
+  "bounces": [],
+  "stabilityGate": {
+    "evaluated": true,
+    "passed": true,
+    "failures": []
+  },
+  "runway": {
+    "ident": "25L",
+    "lengthFt": 13123,
+    "headingTrue": 249.0,
+    "touchdownFromThresholdFt": 1450
+  },
+  "wind": {
+    "directionDeg": 260,
+    "speedKts": 8,
+    "headwind": 7.9,
+    "crosswind": 1.4
+  },
+  "fuel": {
+    "atLandingLbs": 18500,
+    "burnRateLbsHr": 11200
+  },
+  "categories": {
+    "landingRate": { "score": 84, "verdict": "Good" },
+    "gForce": { "score": 88, "verdict": "Good" },
+    "bounce": { "score": 100, "verdict": "No Bounce" },
+    "approach": { "score": 80, "verdict": "Good" },
+    "rollout": { "score": 78, "verdict": "Fair" },
+    "fuel": { "score": 90, "verdict": "Good (Reserve)" }
+  }
+}
