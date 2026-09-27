@@ -35,8 +35,8 @@ Planned/reporting areas include:
 config/        Example configuration only
 docs/          Architecture and public-release documentation
 examples/      Sanitized sample data and integration examples
-src/           Landing analyzer source code (added after sanitization)
-tests/         Automated tests (planned)
+src/           Landing analyzer source code
+tests/         Automated tests
 ```
 
 ## Security
@@ -57,9 +57,25 @@ This project is released under the MIT License. See [LICENSE](LICENSE).
 
 This software is intended for flight-simulation and virtual-airline use. It is not an approved real-world aviation safety or flight-data analysis system.
 
-
 ## Reference implementation
 
 The repository includes a clean-room PHP 8.2+ compatibility layer under `src/`. It normalizes and validates the observable Stratos landing-report schema for downstream applications without redistributing Stratos application source code or claiming to reproduce Stratos's proprietary scoring algorithm.
 
-See `docs/CLEAN_ROOM_IMPLEMENTATION.md`.
+See [docs/CLEAN_ROOM_IMPLEMENTATION.md](docs/CLEAN_ROOM_IMPLEMENTATION.md).
+
+
+## Independent open-source scoring engine
+
+The project now includes an original scoring engine under `src/Scoring/`. It can score normalized landing data across landing rate, touchdown G-force, bounce count, approach stability, rollout/runway-use information, and fuel reserve.
+
+The open-source score is stored separately under `virtualdlh_open_source` when attached to an existing report, so it does not overwrite a Stratos-provided score, grade, or verdict.
+
+The default model is `virtualdlh-default-v1`. Its formulas and thresholds are documented in [docs/SCORING_MODEL.md](docs/SCORING_MODEL.md) and are intended only for flight simulation.
+
+### Development
+
+```bash
+composer install
+composer test
+php examples/score.php
+```
