@@ -1,83 +1,186 @@
 # VirtualDLH Stratos Landing Analyzer
 
-Automated tests run on GitHub Actions for PHP 8.2 and 8.3.
+[![Tests](https://github.com/marco841212/VirtualDLH-Stratos-Landing-Analyzer/actions/workflows/tests.yml/badge.svg)](https://github.com/marco841212/VirtualDLH-Stratos-Landing-Analyzer/actions/workflows/tests.yml)
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Advanced flight landing analysis and pilot performance reporting for Stratos and VirtualDLH.
+Open-source landing analysis and pilot-performance reporting for flight simulation, with compatibility for normalized Stratos landing-report data and VirtualDLH/phpVMS integrations.
 
-> **Repository status:** Initial public-release preparation. The production VirtualDLH/Stratos integration has **not** been copied into this repository yet. Production code will be reviewed and sanitized before it is added.
+## What this project does
 
-## Overview
+VirtualDLH Stratos Landing Analyzer provides an independent PHP 8.2+ toolkit for working with landing reports in virtual-airline and simulator environments.
 
-The VirtualDLH Stratos Landing Analyzer is intended to turn flight telemetry into a structured post-flight landing report for virtual-airline operations and flight-simulation analysis.
+It can:
 
-Planned/reporting areas include:
+- normalize common Stratos landing-report field aliases;
+- validate incoming landing-report structures;
+- calculate an independent landing score, grade, and verdict;
+- score landing rate, touchdown G-force, bounces, approach stability, rollout/runway-use information, and fuel reserve;
+- preserve an existing Stratos score while attaching the open-source result separately;
+- provide a predictable report structure for VirtualDLH, phpVMS, APIs, and other consumers.
 
-- Landing score, grade, and verdict
-- Approach and touchdown telemetry
-- Vertical speed, IAS/groundspeed, pitch, and bank
-- Landing stability checks
-- Bounce detection
-- Runway-use information
-- Wind and fuel context
-- Flight-phase/event information
-- Aircraft-light state reporting when available from Stratos
-- Structured report data that can be linked to a PIREP
+The default open-source scoring model is **`virtualdlh-default-v1`**.
 
-## Project goals
+> This repository does **not** contain Stratos application source code and does not reproduce or claim equivalence with Stratos's proprietary scoring algorithm.
 
-1. Keep the landing-analysis engine independent from the VirtualDLH website.
-2. Accept normalized Stratos telemetry as input.
-3. Produce a predictable, documented report structure.
-4. Make integration with phpVMS/VirtualDLH or other systems straightforward.
-5. Keep credentials, pilot-private data, raw production logs, and server configuration out of the repository.
+## Quick start
 
-## Repository layout
+Clone the repository and install dependencies:
 
-```text
-config/        Example configuration only
-docs/          Architecture and public-release documentation
-examples/      Sanitized sample data and integration examples
-src/           Landing analyzer source code
-tests/         Automated tests
+```bash
+git clone https://github.com/marco841212/VirtualDLH-Stratos-Landing-Analyzer.git
+cd VirtualDLH-Stratos-Landing-Analyzer
+composer install
 ```
 
-## Security
+Run the test suite:
 
-Do **not** commit production `.env` files, database credentials, API tokens, private pilot information, raw Stratos logs, production screenshots, or server-specific secrets.
+```bash
+composer test
+```
 
-See [SECURITY.md](SECURITY.md) and [docs/PUBLIC_RELEASE_CHECKLIST.md](docs/PUBLIC_RELEASE_CHECKLIST.md).
+Run the standalone scoring example:
 
-## Configuration
+```bash
+php examples/score.php
+```
 
-Copy `.env.example` to `.env` for local development and supply your own values. The real `.env` file is ignored by Git.
+## PHP example
 
-## License
+```php
+<?php
 
-This project is released under the MIT License. See [LICENSE](LICENSE).
+require 'vendor/autoload.php';
 
-## Disclaimer
+use VirtualDLH\StratosLanding\LandingReport;
+use VirtualDLH\StratosLanding\Scoring\LandingScorer;
 
-This software is intended for flight-simulation and virtual-airline use. It is not an approved real-world aviation safety or flight-data analysis system.
+$input = [
+    'touchdown' => [
+        'landingRateFpm' => -205,
+        'gForce' => 1.16,
+    ],
+    'bounces' => [],
+    'stabilityGate' => [
+        'evaluated' => true,
+        'passed' => true,
+        'failures' => [],
+    ],
+    'runway' => [
+        'touchdownFromThresholdFt' => 1350,
+        'lengthFt' => 11000,
+    ],
+    'fuel' => [
+        'atLandingLbs' => 15000,
+        'burnRateLbsHr' => 12000,
+    ],
+];
 
-## Reference implementation
+$report = LandingReport::fromArray($input);
 
-The repository includes a clean-room PHP 8.2+ compatibility layer under `src/`. It normalizes and validates the observable Stratos landing-report schema for downstream applications without redistributing Stratos application source code or claiming to reproduce Stratos's proprietary scoring algorithm.
+$analysis = (new LandingScorer())->score($report->toArray());
+
+print_r($analysis);
+```
+
+To attach the open-source analysis without overwriting an existing Stratos score:
+
+```php
+$combined = (new LandingScorer())->attach($report->toArray());
+```
+
+The result is stored under:
+
+```text
+virtualdlh_open_source
+```
+
+## Scoring categories
+
+The default model evaluates:
+
+| Category | Default weight |
+|---|---:|
+| Landing rate | 30 |
+| Touchdown G-force | 20 |
+| Bounce count | 15 |
+| Approach stability | 20 |
+| Rollout / runway-use metric | 10 |
+| Fuel reserve | 5 |
+
+If a category does not have enough data, it is skipped and the remaining active weights are re-normalized.
+
+See [docs/SCORING_MODEL.md](docs/SCORING_MODEL.md) for the full thresholds, grade bands, and verdict rules.
+
+## Report compatibility
+
+The normalizer recognizes commonly observed fields such as:
+
+- `compositeScore` / `composite_score`
+- `grade`
+- `landingVerdict`
+- `landingRateFpm` / `landing_rate_fpm`
+- `gForce` / `g_force`
+- `bounces`
+- `stabilityGate`
+- `approach`
+- `touchdown`
+- `runway`
+- `wind`
+- `fuel`
+
+See [docs/REPORT_FIELDS.md](docs/REPORT_FIELDS.md) for the documented report contract.
+
+## Project structure
+
+```text
+config/        Safe example configuration
+docs/          Architecture, scoring, security, and compatibility documentation
+examples/      Synthetic sample reports and usage examples
+src/           Normalizer, validator, report model, and scoring engine
+tests/         PHPUnit automated tests
+.github/       GitHub Actions continuous integration
+```
+
+## Automated testing
+
+GitHub Actions runs the PHPUnit suite automatically on PHP **8.2** and **8.3** for pushes to `main` and pull requests.
+
+Local testing:
+
+```bash
+composer test
+```
+
+## Clean-room implementation
+
+The compatibility layer is based on the observable report contract received by an integration. Compiled or proprietary Stratos application code is not redistributed in this repository.
 
 See [docs/CLEAN_ROOM_IMPLEMENTATION.md](docs/CLEAN_ROOM_IMPLEMENTATION.md).
 
+## Security
 
-## Independent open-source scoring engine
+Never commit:
 
-The project now includes an original scoring engine under `src/Scoring/`. It can score normalized landing data across landing rate, touchdown G-force, bounce count, approach stability, rollout/runway-use information, and fuel reserve.
+- production `.env` files;
+- API keys, access tokens, private keys, or passwords;
+- database credentials or dumps;
+- private pilot/customer information;
+- production Stratos logs or screenshots containing identifying information;
+- server-specific secrets.
 
-The open-source score is stored separately under `virtualdlh_open_source` when attached to an existing report, so it does not overwrite a Stratos-provided score, grade, or verdict.
+See [SECURITY.md](SECURITY.md).
 
-The default model is `virtualdlh-default-v1`. Its formulas and thresholds are documented in [docs/SCORING_MODEL.md](docs/SCORING_MODEL.md) and are intended only for flight simulation.
+## Contributing
 
-### Development
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
-```bash
-composer install
-composer test
-php examples/score.php
-```
+For scoring changes, document the reason for the change and add or update automated tests.
+
+## License
+
+Released under the [MIT License](LICENSE).
+
+## Disclaimer
+
+This software is intended for **flight simulation and virtual-airline use only**. The scoring model is not a certified aviation standard, manufacturer limit, regulatory requirement, or substitute for real-world operating procedures.
